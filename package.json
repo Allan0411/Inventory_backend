@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "test": "nodemon --watch src --ext js --exec node src/models/test_currstock.js"
   },
   "author": "Shravan Hegde",
   "license": "ISC",
@@ -16,7 +17,8 @@
     "express": "^4.17.1",
     "express-validator": "^6.6.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.14.3"
+    "mysql2": "^3.14.3",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
