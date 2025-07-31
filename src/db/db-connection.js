@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-dotenv.config({path:'../.env'});
+dotenv.config();
 const mysql2 = require('mysql2');
 
 class DBConnection {

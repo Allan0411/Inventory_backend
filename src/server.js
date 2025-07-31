@@ -9,7 +9,7 @@ const userRouter = require('./routes/user.route');
 // Init express
 const app = express();
 // Init environment
-dotenv.config({path: "../.env"});
+dotenv.config();
 // parse requests of content-type: application/json
 // parses incoming requests with JSON payloads
 app.use(express.json());
@@ -17,6 +17,8 @@ app.use(express.json());
 app.use(cors());
 // Enable pre-flight
 app.options("*", cors());
+
+
 
 const port = Number(process.env.PORT || 3331);
 
@@ -30,6 +32,8 @@ app.all('*', (req, res, next) => {
 
 // Error middleware
 app.use(errorMiddleware);
+
+
 
 // starting the server
 app.listen(port, () =>
