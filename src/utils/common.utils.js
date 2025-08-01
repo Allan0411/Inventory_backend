@@ -10,7 +10,7 @@ exports.getPlaceholderStringForArray = (arr) => {
 }
 
 
-exports.multipleColumnSet = (object) => {
+exports.multipleColumnSet = (object,separator) => {
     if (typeof object !== 'object') {
         throw new Error('Invalid input');
     }
@@ -18,7 +18,7 @@ exports.multipleColumnSet = (object) => {
     const keys = Object.keys(object);
     const values = Object.values(object);
 
-    columnSet = keys.map(key => `${key} = ?`).join(', ');
+    columnSet = keys.map(key => `${key} = ?`).join(` ${separator} `);
 
     return {
         columnSet,

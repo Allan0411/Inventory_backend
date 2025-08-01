@@ -11,7 +11,7 @@ class CategoryModel {
             return await query(sql);
         }
 
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         sql += ` WHERE ${columnSet}`;
 
         return await query(sql, [...values]);

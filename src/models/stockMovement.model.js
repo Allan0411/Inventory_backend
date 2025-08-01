@@ -12,10 +12,11 @@ class StockMovementModel{
             return await query(sql);
         }
 
-        const {columnSet,values}=multipleColumnSet(params);
+        const {columnSet,values}=multipleColumnSet(params,' AND ');
         sql+=` Where ${columnSet}`;
 
         return await query(sql,values);
+       
     }
 
     

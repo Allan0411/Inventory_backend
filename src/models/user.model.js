@@ -11,14 +11,14 @@ class UserModel {
             return await query(sql);
         }
 
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         sql += ` WHERE ${columnSet}`;
         return await query(sql, [...values]);
     };
 
     // Get one user
     findOne = async (params) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         const sql = `SELECT * FROM ${this.tableName} WHERE ${columnSet}`;
         const result = await query(sql, [...values]);
         return result[0]; // return first match
@@ -36,7 +36,7 @@ class UserModel {
 
     // Update user by ID
     update = async (params, user_id) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,' , ');
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE user_id = ?`;
         const result = await query(sql, [...values, user_id]);
         return result;

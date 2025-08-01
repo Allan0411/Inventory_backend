@@ -12,7 +12,7 @@ class CurrentStockModel{
             return await query(sql);
         }
 
-        const {columnSet,values}=multipleColumnSet(params);
+        const {columnSet,values}=multipleColumnSet(params,'AND');
 
         sql+=` WHERE ${columnSet}`;
 
@@ -22,12 +22,12 @@ class CurrentStockModel{
 
     //find one
     findOne=async(params)=>{
-        const {columnSet,values}=multipleColumnSet(params);
+        const {columnSet,values}=multipleColumnSet(params,'AND');
 
         const sql=`SELECT * FROM ${this.tableName} WHERE ${columnSet} LIMIT 1`;
 
         const result = await query(sql,values);
-        return result[0];
+        return result;
     };
 
     //create
@@ -45,14 +45,14 @@ class CurrentStockModel{
 
     //update
     update = async (params, product_id, region_id) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,' , ');
 
         // There is a typo in the original SQL: "region id" should be "region_id"
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE product_id = ? AND region_id = ?`;
 
         const result = await query(sql, [...values, product_id, region_id]);
 
-        return result;
+        return result?result.affectedRows:0;
     };
     //delete
     
@@ -60,7 +60,7 @@ class CurrentStockModel{
 
         const sql=`DELETE FROM ${this.tableName} WHERE product_id=? and region_id=?`;
         const result= await query(sql,[product_id,region_id]);
-        return result;
+        return result?result.affectedRows:0;
     };
 
 

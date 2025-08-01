@@ -11,14 +11,14 @@ class BarcodeModel {
             return await query(sql);
         }
 
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         sql += ` WHERE ${columnSet}`;
         return await query(sql, [...values]);
     };
 
     // Get one barcode
     findOne = async (params) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         const sql = `SELECT * FROM ${this.tableName} WHERE ${columnSet}`;
         const result = await query(sql, [...values]);
         return result[0];
@@ -33,7 +33,7 @@ class BarcodeModel {
 
     // Update barcode entry
     update = async (params, barcode) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,' , ');
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE barcode = ?`;
         const result = await query(sql, [...values, barcode]);
         return result;

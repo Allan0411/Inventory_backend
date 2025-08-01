@@ -13,14 +13,14 @@ class ProductModel {
             return await query(sql);
         }
 
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         sql += ` WHERE ${columnSet}`;
 
         return await query(sql, [...values]);
     }
 
     findOne = async (params) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
 
         const sql = `SELECT p.*, c.name as category_name
                      FROM ${this.tableName} p
@@ -41,7 +41,7 @@ class ProductModel {
     }
 
     update = async (params, id) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,' , ');
 
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE product_id = ?`;
 

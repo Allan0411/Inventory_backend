@@ -11,7 +11,7 @@ class RegionModel {
             return await query(sql);
         }
 
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,'AND');
         sql += ` WHERE ${columnSet}`;
         return await query(sql, [...values]);
     };
@@ -35,7 +35,7 @@ class RegionModel {
 
     // Update region
     update = async (params, region_id) => {
-        const { columnSet, values } = multipleColumnSet(params);
+        const { columnSet, values } = multipleColumnSet(params,' , ');
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE region_id = ?`;
         const result = await query(sql, [...values, region_id]);
         return result;
