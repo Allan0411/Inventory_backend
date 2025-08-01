@@ -12,7 +12,8 @@ class ProductController {
     };
 
     getProductById = async (req, res, next) => {
-        const product = await ProductModel.findOne({ product_id: req.params.id });
+        
+        const product = await ProductModel.findOne({ product_id: req.params.product_id });
         if (!product) {
             throw new HttpException(404, 'Product not found');
         }
@@ -30,7 +31,7 @@ class ProductController {
 
     updateProduct = async (req, res, next) => {
         this.checkValidation(req);
-        const result = await ProductModel.update(req.body, req.params.id);
+        const result = await ProductModel.update(req.body, req.params.product_id);
         if (!result) {
             throw new HttpException(404, 'Something went wrong');
         }
@@ -43,7 +44,7 @@ class ProductController {
     };
 
     deleteProduct = async (req, res, next) => {
-        const result = await ProductModel.delete(req.params.id);
+        const result = await ProductModel.delete(req.params.product_id);
         if (!result) {
             throw new HttpException(404, 'Product not found');
         }

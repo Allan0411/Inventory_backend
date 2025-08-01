@@ -6,6 +6,8 @@ const errorMiddleware = require('./middleware/error.middleware');
 const userRouter = require('./routes/user.route');
 const stockMovementRouter = require('./routes/stockMovement.route');
 const currentStockRouter=require('./routes/currentStock.route');
+const categoryRouter=require('./routes/category.route');
+const productRouter=require('./routes/product.route');
 
 // Init express
 const app = express();
@@ -27,6 +29,11 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1', stockMovementRouter);
 
 app.use('/api/v1/current_stock',currentStockRouter);
+
+app.use('/api/v1',categoryRouter);
+
+app.use('/api/v1',productRouter);
+
 // 404 error
 app.all('*', (req, res, next) => {
     const err = new HttpException(404, 'Endpoint Not Found');
