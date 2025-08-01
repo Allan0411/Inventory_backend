@@ -63,7 +63,11 @@ class CurrentStockModel{
         return result?result.affectedRows:0;
     };
 
-
+    findLowStock = async (threshold = 10) => {
+        const sql = `SELECT * FROM ${this.tableName} WHERE quantity < ?`;
+        const result = await query(sql, [threshold]);
+        return result;
+      }
 
 };
 

@@ -11,6 +11,9 @@ router.get('/product/:product_id', CurrentStockController.getStockByProduct);
 // c) Get stock of product in a particular region via query
 router.get('/product-region', CurrentStockController.getStockByProductAndRegion);
 
+// d) Get low stock alert
+router.get('/low', CurrentStockController.getLowStock);
+
 // Create current stock record
 router.post('/', CurrentStockController.createCurrentStock);
 

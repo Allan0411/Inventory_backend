@@ -121,6 +121,27 @@ class CurrentStockController {
       next(error);
     }
   };
+
+  // http://localhost:3000/api/v1/current_stock/low?threshold=number
+  getLowStock=async(req,res,next)=>{
+    try{
+      let {threshold}=req.query;
+
+      threshold=threshold!==undefined?Number(threshold):10;
+
+      if(isNaN(threshold) || threshold<0){
+        throw new HttpException(400,'Threshold must be a non-negative number');
+      }
+
+      const lowStockRecords=await CurrentStockModel.findLowStock(threshold);
+      console.log(lowStockRecords);
+      res.status(200).json(lowStockRecords)
+    }
+    catch(err){
+      next(err);
+
+    }
+  };
 }
 
 module.exports = new CurrentStockController();
