@@ -3,33 +3,18 @@ const StockMovementModel = require('../models/stockMovement.model');
 const HttpException = require('../utils/HttpException.utils');
 const currentStockModel = require('../models/currentStock.model');
 class StockMovementController {
-  
+  //create stock movemnt creates a transaction and updates the inventory i.e currentStock table simultaneously
   createStockMovement = async (req, res, next) => {
     try {
-      const {
-        product_id,
-        region_id,
-        user_id,
-        change_in_stock,
-        type,
-        note
-      } = req.body;
+      const {product_id, region_id, user_id, change_in_stock, type, note} = req.body;
 
-      if (
-        !product_id ||
-        !region_id ||
-        !user_id ||
-        typeof change_in_stock !== 'number' ||
-        !type
+      if (!product_id || !region_id || !user_id || typeof change_in_stock !== 'number' || type
       ) {
         throw new HttpException(400, 'Missing required fields');
       }
 
       // Check if current_stock entry exists for product_id and region_id
-      const currentStockEntryArr = await currentStockModel.findOne({
-        product_id,
-        region_id
-      });
+      const currentStockEntryArr = await currentStockModel.findOne({ product_id, region_id});
 
       let old_quantity = 0;
       let new_quantity = 0;

@@ -8,23 +8,23 @@ const categoryValidationRules = [
   body('description').optional().isString()
 ];
 
-// a. Add category: POST /category
-router.post(
-  '/category',
-  categoryValidationRules,
-  categoryController.createCategory
-);
-// b. Get all categories: GET /category
-router.get('/category', categoryController.getAllCategories);
-// c. Get category by id: GET /category/:category_id
-router.get('/category/:category_id', categoryController.getCategoryById);
-// d. Update category: PUT /category/:category_id
+// Create category
+router.post('/', categoryValidationRules, categoryController.createCategory);
+
+// List all categories
+router.get('/', categoryController.getAllCategories);
+
+// Get category by ID
+router.get('/:category_id', categoryController.getCategoryById);
+
+// Update category by ID
 router.put(
-  '/category/:category_id',
+  '/:category_id',
   categoryValidationRules,
   categoryController.updateCategory
 );
-// e. Delete category: DELETE /category/:category_id
-router.delete('/category/:category_id', categoryController.deleteCategory);
+
+// Delete category by ID
+router.delete('/:category_id', categoryController.deleteCategory);
 
 module.exports = router;

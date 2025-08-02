@@ -27,13 +27,13 @@ const port = Number(process.env.PORT || 3331);
 app.use('/api/v1/users', userRouter);
 
 // Mount stock movement routes
-app.use('/api/v1', stockMovementRouter);
+app.use('/api/v1/stock_movements/', stockMovementRouter);
 
 app.use('/api/v1/current_stock',currentStockRouter);
 
-app.use('/api/v1',categoryRouter);
+app.use('/api/v1/categories/',categoryRouter);
 
-app.use('/api/v1',productRouter);
+app.use('/api/v1/products',productRouter);
 
 // Mount region routes
 app.use('/api/v1/regions', regionRouter);

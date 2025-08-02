@@ -6,22 +6,17 @@ class CategoryModel {
 
     find = async (params = {}) => {
         let sql = `SELECT * FROM ${this.tableName}`;
-
         if (!Object.keys(params).length) {
             return await query(sql);
         }
-
-        const { columnSet, values } = multipleColumnSet(params,'AND');
+        const { columnSet, values } = multipleColumnSet(params, 'AND');
         sql += ` WHERE ${columnSet}`;
-
         return await query(sql, [...values]);
     }
 
-    create = async ({ name, description, is_clearance }) => {
-        const sql = `INSERT INTO ${this.tableName}
-                     (name, description, is_clearance) VALUES (?, ?, ?)`;
-
-        const result = await query(sql, [name, description, is_clearance]);
+    create = async ({ name, description }) => {
+        const sql = `INSERT INTO ${this.tableName} (name, description) VALUES (?, ?)`;
+        const result = await query(sql, [name, description]);
         return result ? result.affectedRows : 0;
     }
 

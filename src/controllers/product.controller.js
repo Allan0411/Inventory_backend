@@ -8,39 +8,37 @@ class ProductController {
         if (!productList.length) {
             throw new HttpException(404, 'Products not found');
         }
-        res.send(productList);
+        res.json(productList);
     };
 
     getProductById = async (req, res, next) => {
-        
         const product = await ProductModel.findOne({ product_id: req.params.product_id });
         if (!product) {
             throw new HttpException(404, 'Product not found');
         }
-        res.send(product);
+        res.json(product);
     };
 
     createProduct = async (req, res, next) => {
         this.checkValidation(req);
+        // Destructure only relevant fields if you want stricter field control:
+        // const { name, category_id, description, price, life_time, additional_details, is_clearance } = req.body;
+        // const result = await ProductModel.create({ name, category_id, ... });
         const result = await ProductModel.create(req.body);
         if (!result) {
-            throw new HttpException(500, 'Something went wrong');
+            throw new HttpException(500, 'Failed to create product');
         }
-        res.status(201).send('Product was created!');
+        res.status(201).json({ message: 'Product was created!' });
     };
 
     updateProduct = async (req, res, next) => {
         this.checkValidation(req);
         const result = await ProductModel.update(req.body, req.params.product_id);
         if (!result) {
-            throw new HttpException(404, 'Something went wrong');
+            throw new HttpException(404, 'Product not found');
         }
-
-        const { affectedRows, changedRows, info } = result;
-        const message = !affectedRows ? 'Product not found' :
-            changedRows ? 'Product updated successfully' : 'Update failed';
-
-        res.send({ message, info });
+        // result should have affectedRows/changingRows/info if using some SQL libs; if not, just send status
+        res.json({ message: 'Product updated successfully' });
     };
 
     deleteProduct = async (req, res, next) => {
@@ -48,15 +46,14 @@ class ProductController {
         if (!result) {
             throw new HttpException(404, 'Product not found');
         }
-        res.send('Product has been deleted');
+        res.json({ message: 'Product has been deleted' });
     };
 
     checkValidation = (req) => {
-        const errors = validationResult(req)
+        const errors = validationResult(req);
         if (!errors.isEmpty()) {
             throw new HttpException(400, 'Validation failed', errors);
         }
     }
 }
-
-module.exports = new ProductController;
+module.exports = new ProductController();
