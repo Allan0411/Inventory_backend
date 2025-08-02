@@ -16,7 +16,7 @@ class CategoryModel {
 
     create = async ({ category_id,name, description }) => {
         const sql = `INSERT INTO ${this.tableName} (category_id,name, description) VALUES (?,?, ?)`;
-        const result = await query(sql, [,category_id,name, description]);
+        const result = await query(sql, [category_id,name, description]);
         return result ? result.affectedRows : 0;
     }
 
