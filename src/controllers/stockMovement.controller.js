@@ -2,32 +2,41 @@ const { v4: uuidv4 } = require('uuid');
 const StockMovementModel = require('../models/stockMovement.model');
 const HttpException = require('../utils/HttpException.utils');
 const currentStockModel = require('../models/currentStock.model');
+
 class StockMovementController {
-  //create stock movemnt creates a transaction and updates the inventory i.e currentStock table simultaneously
+  // Create stock movement and update the CurrentStock table
   createStockMovement = async (req, res, next) => {
     try {
-      const {product_id, region_id, user_id, change_in_stock, type, note} = req.body;
+      const {
+        product_id,
+        region_id,
+        user_id,
+        change_in_stock,
+        type,
+        note,
+        status = 'pending',          // <-- new: default if not supplied
+        tracking_url = null          // <-- new: default if not supplied
+      } = req.body;
 
-      if (!product_id || !region_id || !user_id || typeof change_in_stock !== 'number' || type
+      if (
+        !product_id ||
+        !region_id ||
+        !user_id ||
+        typeof change_in_stock !== 'number' ||
+        !type
       ) {
         throw new HttpException(400, 'Missing required fields');
       }
 
-      // Check if current_stock entry exists for product_id and region_id
-      const currentStockEntryArr = await currentStockModel.findOne({ product_id, region_id});
+      const currentStockEntryArr = await currentStockModel.findOne({ product_id, region_id });
 
       let old_quantity = 0;
       let new_quantity = 0;
       let entryExists = false;
-      let currentStockEntry = null;
 
-      // According to the model, findOne returns an array of rows (possibly empty)
       if (Array.isArray(currentStockEntryArr) && currentStockEntryArr.length > 0) {
         entryExists = true;
-        currentStockEntry = currentStockEntryArr[0];
-        old_quantity = currentStockEntry.quantity;
-      } else {
-        old_quantity = 0;
+        old_quantity = currentStockEntryArr[0].quantity;
       }
       new_quantity = old_quantity + change_in_stock;
 
@@ -35,7 +44,6 @@ class StockMovementController {
         throw new HttpException(400, 'Stock cannot be negative');
       }
 
-      // Create stock movement record
       const id = uuidv4();
       const affectedRows = await StockMovementModel.create({
         id,
@@ -44,7 +52,9 @@ class StockMovementController {
         user_id,
         change_in_stock,
         type,
-        note
+        note,
+        status,
+        tracking_url
       });
 
       if (!affectedRows) {
@@ -53,14 +63,12 @@ class StockMovementController {
 
       let affectedRows2;
       if (entryExists) {
-        // Update existing current_stock entry
         affectedRows2 = await currentStockModel.update(
           { quantity: new_quantity },
           product_id,
           region_id
         );
       } else {
-        // Create new current_stock entry
         affectedRows2 = await currentStockModel.create({
           product_id,
           region_id,
@@ -78,7 +86,6 @@ class StockMovementController {
     }
   };
 
-
   getAllStockMovements = async (req, res, next) => {
     try {
       const records = await StockMovementModel.find();
@@ -88,40 +95,63 @@ class StockMovementController {
     }
   };
 
-
   getStockMovementById = async (req, res, next) => {
     try {
       const id = req.params.id;
-      const record = await StockMovementModel.findOne({ id });
+      const record = await StockMovementModel.find({ id });
 
       if (!record) {
         throw new HttpException(404, 'Stock movement not found');
       }
-
       res.json(record);
     } catch (error) {
       next(error);
     }
   };
 
-
   getStockMovementsByProduct = async (req, res, next) => {
     try {
       const product_id = req.params.product_id;
       const records = await StockMovementModel.find({ product_id });
-
       res.json(records);
     } catch (error) {
       next(error);
     }
   };
 
-  
   getStockMovementsByUser = async (req, res, next) => {
     try {
       const user_id = req.params.user_id;
       const records = await StockMovementModel.find({ user_id });
       res.json(records);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // PATCH: Update the status of a stock movement
+  updateStatus = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      if (!status) throw new HttpException(400, 'Status is required');
+      const affectedRows = await StockMovementModel.updateStatus(id, status);
+      if (!affectedRows) throw new HttpException(404, 'Stock movement not found or status unchanged');
+      res.json({ message: 'Status updated', id, status });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // PATCH: Update the tracking URL of a stock movement
+  updateTrackingUrl = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { tracking_url } = req.body;
+      if (!tracking_url) throw new HttpException(400, 'Tracking URL is required');
+      const affectedRows = await StockMovementModel.updateTrackingUrl(id, tracking_url);
+      if (!affectedRows) throw new HttpException(404, 'Stock movement not found or tracking URL unchanged');
+      res.json({ message: 'Tracking URL updated', id, tracking_url });
     } catch (error) {
       next(error);
     }

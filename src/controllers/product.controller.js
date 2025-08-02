@@ -1,6 +1,7 @@
 const ProductModel = require('../models/product.model');
 const HttpException = require('../utils/HttpException.utils');
 const { validationResult } = require('express-validator');
+const { v4: uuidv4 } = require('uuid');
 
 class ProductController {
     getAllProducts = async (req, res, next) => {
@@ -19,16 +20,19 @@ class ProductController {
         res.json(product);
     };
 
+    
     createProduct = async (req, res, next) => {
         this.checkValidation(req);
-        // Destructure only relevant fields if you want stricter field control:
-        // const { name, category_id, description, price, life_time, additional_details, is_clearance } = req.body;
-        // const result = await ProductModel.create({ name, category_id, ... });
+        // Generate a new product_id using uuid
+        const product_id = 'prod-' + uuidv4();
+        // Append product_id to req.body
+        req.body.product_id = product_id;
+        console.log(req.body);
         const result = await ProductModel.create(req.body);
         if (!result) {
             throw new HttpException(500, 'Failed to create product');
         }
-        res.status(201).json({ message: 'Product was created!' });
+        res.status(201).json({ message: 'Product was created!', product_id });
     };
 
     updateProduct = async (req, res, next) => {

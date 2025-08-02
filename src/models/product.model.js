@@ -38,12 +38,11 @@ class ProductModel {
         price,
         life_time,
         additional_details = null, // should be an object or JSON
-        is_clearance = false
+        is_clearance = false,
+        product_id
     }) => {
-        const sql = `INSERT INTO ${this.tableName}
-                         (name, category_id, description, price, life_time, additional_details, is_clearance) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        const result = await query(sql, [
+        const sql = `INSERT INTO ${this.tableName} (product_id,name, category_id, description, price, life_time, additional_details, is_clearance) VALUES (?, ?, ?, ?, ?, ?,?, ?)`;
+        const result = await query(sql, [product_id,
             name, category_id, description, price, life_time,
             additional_details ? JSON.stringify(additional_details) : null,
             is_clearance
@@ -52,10 +51,16 @@ class ProductModel {
     }
 
     // Update product
-    update = async (params, id) => {
+    update = async (params, product_id) => {
+        // If additional_details is present, ensure it's stringified before updating
+        if (params.hasOwnProperty('additional_details')) {
+            params.additional_details = params.additional_details !== null && params.additional_details !== undefined
+                ? JSON.stringify(params.additional_details)
+                : null;
+        }
         const { columnSet, values } = multipleColumnSet(params, ', ');
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE product_id = ?`;
-        const result = await query(sql, [...values, id]);
+        const result = await query(sql, [...values, product_id]);
         return result;
     }
 

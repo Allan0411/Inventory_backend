@@ -1,6 +1,7 @@
 const CategoryModel = require('../models/category.model');
 const HttpException = require('../utils/HttpException.utils');
 const { validationResult } = require('express-validator');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * Controller for Category endpoints
@@ -25,10 +26,15 @@ class CategoryController {
     };
 
     // POST /api/v1/categories
+
+
     createCategory = async (req, res, next) => {
         this.checkValidation(req);
-        const { name, description } = req.body;  // Only expect name/description as per schema
-        const result = await CategoryModel.create({ name, description });
+
+        const { name, description } = req.body;
+        const category_id = 'cat-' + uuidv4();
+        console.log(category_id);
+        const result = await CategoryModel.create({ category_id, name, description });
         if (!result) {
             throw new HttpException(500, 'Something went wrong');
         }
