@@ -1,30 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/category.controller');
-const { body } = require('express-validator');
+const awaitHandlerFactory = require('../middleware/awaitHandlerFactory.middleware');
 
-const categoryValidationRules = [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('description').optional().isString()
-];
+const {
+  createCategorySchema,
+  updateCategorySchema
+} = require('../middleware/validators/categoryValidator.middleware');
 
 // Create category
-router.post('/', categoryValidationRules, categoryController.createCategory);
+router.post('/', createCategorySchema,awaitHandlerFactory(categoryController.createCategory));
 
 // List all categories
-router.get('/', categoryController.getAllCategories);
+router.get('/', awaitHandlerFactory(categoryController.getAllCategories));
 
 // Get category by ID
-router.get('/:category_id', categoryController.getCategoryById);
+router.get('/:category_id', awaitHandlerFactory(categoryController.getCategoryById));
 
 // Update category by ID
-router.put(
-  '/:category_id',
-  categoryValidationRules,
-  categoryController.updateCategory
-);
+router.put('/:category_id', updateCategorySchema, awaitHandlerFactory(categoryController.updateCategory));
+
 
 // Delete category by ID
-router.delete('/:category_id', categoryController.deleteCategory);
+router.delete('/:category_id',awaitHandlerFactory(categoryController.deleteCategory));
 
 module.exports = router;

@@ -1,10 +1,7 @@
 const { body } = require('express-validator');
 
 exports.createCategorySchema = [
-    body('category_id')
-        .exists().withMessage('Category ID is required')
-        .isString().withMessage('Category ID must be a string'),
-
+   
     body('name')
         .exists().withMessage('Category name is required')
         .isLength({ min: 2 }).withMessage('Name must be at least 2 characters long'),
@@ -15,9 +12,6 @@ exports.createCategorySchema = [
 ];
 
 exports.updateCategorySchema = [
-    body('category_id')
-        .optional()
-        .isString().withMessage('Category ID must be a string'),
 
     body('name')
         .optional()
@@ -35,7 +29,7 @@ exports.updateCategorySchema = [
         .withMessage('Please provide at least one field to update')
         .custom(value => {
             const updates = Object.keys(value);
-            const allowedUpdates = ['category_id', 'name', 'description'];
+            const allowedUpdates = [ 'name', 'description'];
             return updates.every(update => allowedUpdates.includes(update));
         })
         .withMessage('Invalid updates!')

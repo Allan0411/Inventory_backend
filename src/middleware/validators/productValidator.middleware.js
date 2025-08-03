@@ -2,10 +2,6 @@
 const { body } = require('express-validator');
 
 exports.createProductSchema = [
-    body('product_id')
-        .exists().withMessage('Product ID is required')
-        .isString().withMessage('Product ID must be a string'),
-
     body('name')
         .exists().withMessage('Product name is required')
         .isLength({ min: 2 }).withMessage('Product name must be at least 2 characters long'),
@@ -36,10 +32,6 @@ exports.createProductSchema = [
 ];
 
 exports.updateProductSchema = [
-    body('product_id')
-        .optional()
-        .isString().withMessage('Product ID must be a string'),
-
     body('name')
         .optional()
         .isLength({ min: 2 }).withMessage('Product name must be at least 2 characters long'),
@@ -75,7 +67,7 @@ exports.updateProductSchema = [
         .withMessage('Please provide at least one field to update')
         .custom(value => {
             const updates = Object.keys(value);
-            const allowUpdates = ['product_id', 'name', 'category_id', 'description', 'price', 'life_time', 'additional_details', 'is_clearance'];
+            const allowUpdates = [ 'name', 'category_id', 'description', 'price', 'life_time', 'additional_details', 'is_clearance'];
             return updates.every(update => allowUpdates.includes(update));
         })
         .withMessage('Invalid updates!')
