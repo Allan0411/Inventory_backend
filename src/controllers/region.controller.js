@@ -1,10 +1,7 @@
 const RegionModel = require('../models/region.model');
 const HttpException = require('../utils/HttpException.utils');
 
-
-
 class RegionController {
-    // GET all regions
     getAll = async (req, res, next) => {
         const regions = await RegionModel.find();
         if (!regions.length) {
@@ -13,7 +10,6 @@ class RegionController {
         res.send(regions);
     };
 
-    // GET region by ID
     getById = async (req, res, next) => {
         const region = await RegionModel.findOne({ region_id: req.params.id });
         if (!region) {
@@ -22,7 +18,6 @@ class RegionController {
         res.send(region);
     };
 
-    // POST create region
     create = async (req, res, next) => {
         const result = await RegionModel.create(req.body);
         if (!result) {
@@ -31,7 +26,6 @@ class RegionController {
         res.status(201).send('Region created successfully');
     };
 
-    // PATCH update region
     update = async (req, res, next) => {
         const result = await RegionModel.update(req.body, req.params.id);
         if (!result) {
@@ -40,7 +34,6 @@ class RegionController {
         res.send({ message: 'Region updated successfully' });
     };
 
-    // DELETE region
     delete = async (req, res, next) => {
         const result = await RegionModel.delete(req.params.id);
         if (!result) {
