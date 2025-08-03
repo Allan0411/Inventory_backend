@@ -1,7 +1,7 @@
 const { body } = require('express-validator');
 
 exports.createRegionValidator = [
-    body('region_id').notEmpty().withMessage('region_id is required'),
+    
     body('name').notEmpty().withMessage('Region name is required'),
     body('location').notEmpty().withMessage('Location is required'),
     body('capacity').isNumeric().withMessage('Capacity must be a number'),

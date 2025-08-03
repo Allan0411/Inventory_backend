@@ -18,7 +18,7 @@ class CategoryController {
 
     // GET /api/v1/categories/:id
     getCategoryById = async (req, res, next) => {
-        const category = await CategoryModel.findOne({ category_id: req.params.id });
+        const category = await CategoryModel.find({ category_id: req.params.category_id });
         if (!category) {
             throw new HttpException(404, 'Category not found');
         }
@@ -45,7 +45,7 @@ class CategoryController {
     updateCategory = async (req, res, next) => {
         this.checkValidation(req);
         const { name, description } = req.body;
-        const result = await CategoryModel.update({ name, description }, req.params.id);
+        const result = await CategoryModel.update({ name, description }, req.params.category_id);
         if (!result) {
             throw new HttpException(404, 'Category not found');
         }
@@ -54,7 +54,7 @@ class CategoryController {
 
     // DELETE /api/v1/categories/:id
     deleteCategory = async (req, res, next) => {
-        const result = await CategoryModel.delete(req.params.id);
+        const result = await CategoryModel.delete(req.params.category_id);
         if (!result) {
             throw new HttpException(404, 'Category not found');
         }

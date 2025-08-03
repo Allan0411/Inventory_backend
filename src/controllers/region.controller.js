@@ -19,7 +19,11 @@ class RegionController {
     };
 
     create = async (req, res, next) => {
+         const { v4: uuidv4 } = require('uuid');
+        req.body.region_id = 'region-' + uuidv4();
         const result = await RegionModel.create(req.body);
+       
+
         if (!result) {
             throw new HttpException(500, 'Region creation failed');
         }

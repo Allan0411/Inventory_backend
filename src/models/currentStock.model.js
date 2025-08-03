@@ -51,8 +51,8 @@ class CurrentStockModel{
         const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE product_id = ? AND region_id = ?`;
 
         const result = await query(sql, [...values, product_id, region_id]);
-
-        return result?result.affectedRows:0;
+        console.log(result.affectedRows);
+        return result ? { affectedRows: result.affectedRows, changedRows: result.changedRows } : { affectedRows: 0, changedRows: 0 };
     };
     //delete
     

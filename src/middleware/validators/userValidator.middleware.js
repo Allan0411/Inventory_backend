@@ -126,9 +126,7 @@ const { body } = require('express-validator');
  * Validator for creating a new user
  */
 exports.createUserSchema = [
-  body('user_id')
-    .exists().withMessage('user_id is required')
-    .isLength({ min: 3 }).withMessage('user_id must be at least 3 characters'),
+ 
 
   body('name')
     .exists().withMessage('Name is required')

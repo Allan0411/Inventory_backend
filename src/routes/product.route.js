@@ -6,7 +6,7 @@ const awaitHandlerFactory = require('../middleware/awaitHandlerFactory.middlewar
 const {
   createProductSchema,
   updateProductSchema
-} = require('../middleware/validators/productValidator');
+} = require('../middleware/validators/productValidator.middleware');
 
 
 // Create Product

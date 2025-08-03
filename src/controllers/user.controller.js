@@ -1,7 +1,7 @@
 const UserModel = require('../models/user.model');
 const HttpException = require('../utils/HttpException.utils');
 const { validationResult } = require('express-validator');
-
+ const { v4: uuidv4 } = require('uuid');
 class UserController {
     // GET /api/users
     getAllUsers = async (req, res, next) => {
@@ -26,8 +26,9 @@ class UserController {
     // POST /api/users
     createUser = async (req, res, next) => {
         this.checkValidation(req);
-
-        const result = await UserModel.create(req.body);
+        const user_id = 'user-' + uuidv4();
+        const userData = { ...req.body, user_id };
+        const result = await UserModel.create(userData);
         if (!result) {
             throw new HttpException(500, 'Failed to create user');
         }
