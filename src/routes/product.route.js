@@ -1,30 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/product.controller');
-const { body } = require('express-validator');
+const awaitHandlerFactory = require('../middleware/awaitHandlerFactory.middleware');
+// Import schemas:
+const {
+  createProductSchema,
+  updateProductSchema
+} = require('../middleware/validators/productValidator');
 
-const productValidationRules = [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('price').isFloat({ gt: 0 }).withMessage('Price must be greater than 0'),
-  body('category_id').notEmpty().withMessage('Category ID is required'),
-  body('life_time').optional().isInt({ min: 0 }),
-  body('additional_details').optional(),
-  body('is_clearance').optional().isBoolean(),
-];
 
 // Create Product
-router.post('/', productValidationRules, productController.createProduct);
+router.post('/', createProductSchema, awaitHandlerFactory(productController.createProduct));
 
 // List All Products
-router.get('/', productController.getAllProducts);
+router.get('/', awaitHandlerFactory(productController.getAllProducts));
 
 // Get Product by id
-router.get('/:product_id', productController.getProductById);
+router.get('/:product_id', awaitHandlerFactory(productController.getProductById));
 
 // Update Product
-router.put('/:product_id', productValidationRules, productController.updateProduct);
+router.put('/:product_id', updateProductSchema, awaitHandlerFactory(productController.updateProduct));
 
 // Delete Product
-router.delete('/:product_id', productController.deleteProduct);
+router.delete('/:product_id', awaitHandlerFactory(productController.deleteProduct));
 
 module.exports = router;
+
