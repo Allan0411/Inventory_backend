@@ -25,30 +25,13 @@ class StockMovementController {
         tracking_url = null
       } = req.body;
 
-      
-      const currentStockEntryArr = await currentStockModel.findOne({ product_id, region_id });
-      let old_quantity = 0, new_quantity = 0, entryExists = false;
-      if (Array.isArray(currentStockEntryArr) && currentStockEntryArr.length > 0) {
-        entryExists = true;
-        old_quantity = currentStockEntryArr[0].quantity;
-      }
-      new_quantity = old_quantity + change_in_stock;
-      if (new_quantity < 0) throw new HttpException(400, 'Stock cannot be negative');
+    
 
       const id = uuidv4();
       const affectedRows = await StockMovementModel.create({
         id, product_id, region_id, user_id, change_in_stock, type, note, status, tracking_url
       });
-      if (!affectedRows) throw new HttpException(500, 'Failed to create stock movement');
-
-      let affectedRows2;
-      if (entryExists) {
-        affectedRows2 = await currentStockModel.update({ quantity: new_quantity }, product_id, region_id);
-      } else {
-        affectedRows2 = await currentStockModel.create({ product_id, region_id, quantity: new_quantity });
-      }
-      if (!affectedRows2) throw new HttpException(500, 'Failed to update/create current stock');
-
+    
       res.status(201).json({ message: 'Stock movement created', id });
     } catch (error) {
       next(error);
@@ -114,6 +97,28 @@ class StockMovementController {
       if (!status) throw new HttpException(400, 'Status is required');
       const affectedRows = await StockMovementModel.updateStatus(id, status);
       if (!affectedRows) throw new HttpException(404, 'Stock movement not found or status unchanged');
+
+      if (status === 'delivered' || status === 'completed') {
+        // Always update currentStock, never create, since creation happens in the first part
+        const stockMovementArr = await StockMovementModel.find({ id });
+        const stockMovement = Array.isArray(stockMovementArr) && stockMovementArr.length > 0 ? stockMovementArr[0] : null;
+        if (!stockMovement) throw new HttpException(404, 'Stock movement not found for stock update');
+
+        const { product_id, region_id, change_in_stock } = stockMovement;
+
+        // Get current stock
+        const currentStockEntryArr = await currentStockModel.findOne({ product_id, region_id });
+        if (!Array.isArray(currentStockEntryArr) || currentStockEntryArr.length === 0) {
+          throw new HttpException(404, 'Current stock entry not found for update');
+        }
+        const old_quantity = currentStockEntryArr[0].quantity;
+        const new_quantity = old_quantity + change_in_stock;
+        if (new_quantity < 0) throw new HttpException(400, 'Stock cannot be negative');
+
+        const affectedRows2 = await currentStockModel.update({ quantity: new_quantity }, product_id, region_id);
+        if (!affectedRows2) throw new HttpException(500, 'Failed to update current stock');
+      }
+
       res.json({ message: 'Status updated', id, status });
     } catch (error) {
       next(error);
