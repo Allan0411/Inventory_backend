@@ -14,10 +14,17 @@ class CategoryModel {
         return await query(sql, [...values]);
     }
 
-    create = async ({ category_id,name, description }) => {
-        const sql = `INSERT INTO ${this.tableName} (category_id,name, description) VALUES (?,?, ?)`;
-        const result = await query(sql, [category_id,name, description]);
+    create = async ({ category_id, name, description }) => {
+        const sql = `INSERT INTO ${this.tableName} (category_id, name, description) VALUES (?, ?, ?)`;
+        const result = await query(sql, [category_id, name, description]);
         return result ? result.affectedRows : 0;
+    }
+
+    update = async (params, category_id) => {
+        const { columnSet, values } = multipleColumnSet(params, ', ');
+        const sql = `UPDATE ${this.tableName} SET ${columnSet} WHERE category_id = ?`;
+        const result = await query(sql, [...values, category_id]);
+        return result;
     }
 
     delete = async (id) => {
@@ -54,4 +61,4 @@ class CategoryModel {
     
 }
 
-module.exports = new CategoryModel;
+module.exports = new CategoryModel();
