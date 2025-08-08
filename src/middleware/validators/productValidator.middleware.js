@@ -6,9 +6,6 @@ exports.createProductSchema = [
         .exists().withMessage('Product name is required')
         .isLength({ min: 2 }).withMessage('Product name must be at least 2 characters long'),
 
-    body('category_id')
-        .exists().withMessage('Category ID is required')
-        .isString().withMessage('Category ID must be a string'),
 
     body('description')
         .optional()

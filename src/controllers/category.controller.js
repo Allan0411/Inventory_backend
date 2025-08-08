@@ -9,11 +9,19 @@ const { v4: uuidv4 } = require('uuid');
 class CategoryController {
     // GET /api/v1/categories
     getAllCategories = async (req, res, next) => {
-        const categoryList = await CategoryModel.find();
-        if (!categoryList.length) {
-            throw new HttpException(404, 'Categories not found');
+        try {
+            const categoryList = await CategoryModel.find();
+            if (!categoryList.length) {
+                // Instead of error, return 200 with empty array and a message
+                return res.status(200).json({
+                    message: 'No categories found. The category list is empty.',
+                    categories: []
+                });
+            }
+            res.send(categoryList);
+        } catch (error) {
+            next(error);
         }
-        res.send(categoryList);
     };
 
     // GET /api/v1/categories/:id

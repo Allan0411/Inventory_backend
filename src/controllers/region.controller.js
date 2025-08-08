@@ -1,49 +1,66 @@
 const RegionModel = require('../models/region.model');
-const HttpException = require('../utils/HttpException.utils');
+const { v4: uuidv4 } = require('uuid');
 
 class RegionController {
     getAll = async (req, res, next) => {
-        const regions = await RegionModel.find();
-        if (!regions.length) {
-            throw new HttpException(404, 'No regions found');
+        try {
+            const regions = await RegionModel.find();
+            if (!regions.length) {
+                return res.status(200).json({ message: 'No regions found', regions: [] });
+            }
+            res.json(regions);
+        } catch (error) {
+            next(error);
         }
-        res.send(regions);
     };
 
     getById = async (req, res, next) => {
-        const region = await RegionModel.findOne({ region_id: req.params.id });
-        if (!region) {
-            throw new HttpException(404, 'Region not found');
+        try {
+            const region = await RegionModel.findOne({ region_id: req.params.id });
+            if (!region) {
+                return res.status(200).json({ message: 'Region not found' });
+            }
+            res.json(region);
+        } catch (error) {
+            next(error);
         }
-        res.send(region);
     };
 
     create = async (req, res, next) => {
-         const { v4: uuidv4 } = require('uuid');
-        req.body.region_id = 'region-' + uuidv4();
-        const result = await RegionModel.create(req.body);
-       
-
-        if (!result) {
-            throw new HttpException(500, 'Region creation failed');
+        try {
+            req.body.region_id = 'region-' + uuidv4();
+            const result = await RegionModel.create(req.body);
+            if (!result) {
+                return res.status(500).json({ message: 'Region creation failed' });
+            }
+            res.status(201).json({ message: 'Region created successfully' });
+        } catch (error) {
+            next(error);
         }
-        res.status(201).send('Region created successfully');
     };
 
     update = async (req, res, next) => {
-        const result = await RegionModel.update(req.body, req.params.id);
-        if (!result) {
-            throw new HttpException(404, 'Region not found or update failed');
+        try {
+            const result = await RegionModel.update(req.body, req.params.id);
+            if (!result) {
+                return res.status(200).json({ message: 'Region not found or update failed' });
+            }
+            res.json({ message: 'Region updated successfully' });
+        } catch (error) {
+            next(error);
         }
-        res.send({ message: 'Region updated successfully' });
     };
 
     delete = async (req, res, next) => {
-        const result = await RegionModel.delete(req.params.id);
-        if (!result) {
-            throw new HttpException(404, 'Region not found');
+        try {
+            const result = await RegionModel.delete(req.params.id);
+            if (!result) {
+                return res.status(200).json({ message: 'Region not found' });
+            }
+            res.json({ message: 'Region deleted successfully' });
+        } catch (error) {
+            next(error);
         }
-        res.send('Region deleted successfully');
     };
 }
 

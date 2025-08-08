@@ -6,9 +6,7 @@ class ProductModel {
 
     // Find all products (with category info)
     find = async (params = {}) => {
-        let sql = `SELECT p.*, c.name as category_name, c.description as category_description
-                   FROM ${this.tableName} p
-                   JOIN category c ON p.category_id = c.category_id`;
+        let sql = `SELECT * FROM ${this.tableName} `;
 
         if (!Object.keys(params).length) {
             return await query(sql);
@@ -22,10 +20,7 @@ class ProductModel {
     // Find one product
     findOne = async (params) => {
         const { columnSet, values } = multipleColumnSet(params, 'AND');
-        const sql = `SELECT p.*, c.name as category_name
-                     FROM ${this.tableName} p
-                     JOIN category c ON p.category_id = c.category_id
-                     WHERE ${columnSet}`;
+        const sql = `SELECT * FROM ${this.tableName} WHERE ${columnSet}`;
         const result = await query(sql, [...values]);
         return result[0];
     }

@@ -69,6 +69,14 @@ class CurrentStockModel{
         return result;
       }
 
+    getRegionCapacityInUse= async(region_id)=>{
+
+        const sql=`SELECT IFNULL(SUM(quantity),0) AS capacity_in_use FROM Current_Stock WHERE region_id=?`;
+        const result = await query(sql,[region_id]);
+
+        return result[0].capacity_in_use;
+    };
+
 };
 
 

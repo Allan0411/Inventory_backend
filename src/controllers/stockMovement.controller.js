@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const StockMovementModel = require('../models/stockMovement.model');
 const HttpException = require('../utils/HttpException.utils');
 const currentStockModel = require('../models/currentStock.model');
-
+const RegionModel=require('../models/region.model');
 class StockMovementController {
   checkValidation = (req) => {
     const { validationResult } = require('express-validator');
@@ -92,31 +92,56 @@ class StockMovementController {
   updateStatus = async (req, res, next) => {
     try {
       this.checkValidation(req);
-      const { id } = req.params;
-      const { status } = req.body;
-      if (!status) throw new HttpException(400, 'Status is required');
-      const affectedRows = await StockMovementModel.updateStatus(id, status);
-      if (!affectedRows) throw new HttpException(404, 'Stock movement not found or status unchanged');
+      const{id}=req.params;
+      const {status}=req.body;
+      if(!status) throw new HttpException(400,'Status is required');
 
-      if (status === 'delivered' || status === 'completed') {
-        // Update currentStock, and create if it doesn't exist
-        const stockMovementArr = await StockMovementModel.find({ id });
-        const stockMovement = Array.isArray(stockMovementArr) && stockMovementArr.length > 0 ? stockMovementArr[0] : null;
-        if (!stockMovement) throw new HttpException(404, 'Stock movement not found for stock update');
+       const stockMovementArr=await StockMovementModel.find({id});
+       const stockMovement=Array.isArray(stockMovementArr) && stockMovementArr.length>0 ? stockMovementArr[0]:null;
 
+       if(!stockMovement)
+          throw new HttpException(404,'Stock Movement not found');
+
+       const oldStatus=stockMovement.status;
+
+       const statusOrder={'pending':1,'in-transit':2,'delivered':3};
+       if(oldStatus=='delivered')
+          throw new HttpException(400,'Delivered stock movement status cannot be changed');
+       
+       if (!(statusOrder[status] && statusOrder[status] === statusOrder[oldStatus] + 1)) {
+        throw new HttpException(
+          400,
+          `Invalid status transition: ${oldStatus} → ${status}. Only forward status movement allowed`
+        );
+      }
+
+      // Only update the status after all checks and stock updates for 'delivered'
+      if(status === 'delivered') {
         const { product_id, region_id, change_in_stock } = stockMovement;
+        const regionArr = await RegionModel.find({ region_id });
+        const region = Array.isArray(regionArr) && regionArr.length > 0 ? regionArr[0] : null;
+        const capacity = region ? region.capacity : null;
+        const regionName=region.name;
+        if (capacity == null)
+          throw new HttpException(404, 'Region not found');
 
-        // Try to get current stock
+        const inUse = await currentStockModel.getRegionCapacityInUse(region_id);
         let currentStockEntryArr = await currentStockModel.findOne({ product_id, region_id });
         let old_quantity = 0;
-        let new_quantity = 0;
-        let affectedRows2;
+        if (Array.isArray(currentStockEntryArr) && currentStockEntryArr.length > 0) {
+          old_quantity = currentStockEntryArr[0].quantity;
+        }
 
-        if (!Array.isArray(currentStockEntryArr) || currentStockEntryArr.length === 0) {
-          // Create new current stock entry
-          old_quantity = 0;
-          new_quantity = old_quantity + change_in_stock;
-          if (new_quantity < 0) throw new HttpException(400, 'Stock cannot be negative');
+        let new_quantity = old_quantity + change_in_stock;
+        let future_in_use = inUse + change_in_stock;
+
+        if (future_in_use > capacity) {
+          throw new HttpException(400, `Capacity Exceeded at region ${regionName} : capacity is ${capacity}; trying to add ${change_in_stock} to ${inUse} `);
+        }
+
+        let affectedRows2;
+        if (old_quantity === 0) {
+          // Create
           affectedRows2 = await currentStockModel.create({
             product_id,
             region_id,
@@ -124,16 +149,23 @@ class StockMovementController {
           });
           if (!affectedRows2) throw new HttpException(500, 'Failed to create current stock entry');
         } else {
-          // Update existing current stock entry
-          old_quantity = currentStockEntryArr[0].quantity;
-          new_quantity = old_quantity + change_in_stock;
-          if (new_quantity < 0) throw new HttpException(400, 'Stock cannot be negative');
+          // Update
           affectedRows2 = await currentStockModel.update({ quantity: new_quantity }, product_id, region_id);
           if (!affectedRows2) throw new HttpException(500, 'Failed to update current stock');
         }
-      }
 
-      res.json({ message: 'Status updated', id, status });
+        // Now update the status to 'delivered'
+        const affectedRows = await StockMovementModel.updateStatus(id, status);
+        if (!affectedRows)
+          throw new HttpException(404, "stock movement not found or status unchanged");
+      } else {
+        // For other statuses, update status as before
+        const affectedRows = await StockMovementModel.updateStatus(id, status);
+        if (!affectedRows)
+          throw new HttpException(404, "stock movement not found or status unchanged");
+      }
+      res.json({message:'Status updated',id,status});
+
     } catch (error) {
       next(error);
     }

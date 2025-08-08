@@ -5,11 +5,19 @@ const { v4: uuidv4 } = require('uuid');
 
 class ProductController {
     getAllProducts = async (req, res, next) => {
-        const productList = await ProductModel.find();
-        if (!productList.length) {
-            throw new HttpException(404, 'Products not found');
+        try {
+            const productList = await ProductModel.find();
+            if (!productList.length) {
+                // Instead of error, return 200 with empty array and a message
+                return res.status(200).json({
+                    message: 'No products found. The product list is empty.',
+                    products: []
+                });
+            }
+            res.json(productList);
+        } catch (error) {
+            next(error);
         }
-        res.json(productList);
     };
 
     getProductById = async (req, res, next) => {
@@ -27,7 +35,10 @@ class ProductController {
         const product_id = 'prod-' + uuidv4();
         // Append product_id to req.body
         req.body.product_id = product_id;
-        console.log(req.body);
+        // If category_id is missing or blank, set it to 'cat-000000'
+        if (!req.body.category_id || req.body.category_id.trim() === '') {
+            req.body.category_id = 'cat-000000';
+        }
         const result = await ProductModel.create(req.body);
         if (!result) {
             throw new HttpException(500, 'Failed to create product');
