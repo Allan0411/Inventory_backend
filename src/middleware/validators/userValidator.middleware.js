@@ -159,7 +159,7 @@ exports.updateUserSchema = [
 
   body('role')
     .optional()
-    .isIn(['Admin', 'User']).withMessage('Role must be either Admin or User'),
+    .isIn(['Admin', 'Editor', 'Viewer']).withMessage('Role must be either Admin, Editor or Viewer'),
 
   body('contact')
     .optional()

@@ -6,7 +6,7 @@ class RegionModel {
 
     // Get all or filter
     find = async (params = {}) => {
-        let sql = `SELECT * FROM ${this.tableName}`;
+        let sql = `SELECT * FROM ${this.tableName}`;w
         if (!Object.keys(params).length) {
             return await query(sql);
         }
@@ -47,6 +47,8 @@ class RegionModel {
         const result = await query(sql, [region_id]);
         return result?.affectedRows || 0;
     };
+
+    
 }
 
 module.exports = new RegionModel();

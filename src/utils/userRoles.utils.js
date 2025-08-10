@@ -1,4 +1,5 @@
 module.exports = {
     Admin: 'Admin',
-    SuperUser: 'SuperUser'
+    SuperUser: 'SuperUser',
+    Viewer: 'Viewer'
 }
