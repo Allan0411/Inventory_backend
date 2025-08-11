@@ -6,7 +6,7 @@ class RegionModel {
 
     // Get all or filter
     find = async (params = {}) => {
-        let sql = `SELECT * FROM ${this.tableName}`;w
+        let sql = `SELECT * FROM ${this.tableName}`;
         if (!Object.keys(params).length) {
             return await query(sql);
         }
@@ -48,6 +48,39 @@ class RegionModel {
         return result?.affectedRows || 0;
     };
 
+    //analytics
+    getRegionCapacityUtilization = async () => {
+        const sql = `
+            SELECT
+                r.region_id,
+                r.name,
+                r.capacity,
+                COALESCE(SUM(cs.quantity), 0) AS total_stock,
+                ROUND(100 * COALESCE(SUM(cs.quantity), 0) / r.capacity, 2) AS utilization_percent
+            FROM region r
+            LEFT JOIN current_stock cs ON cs.region_id = r.region_id
+            GROUP BY r.region_id, r.name, r.capacity
+            ORDER BY utilization_percent DESC
+        `;
+        return await query(sql);
+    };
+    
+    getRegionMovementSummary = async () => {
+        const sql = `
+            SELECT
+                r.region_id,
+                r.name,
+                COUNT(sm.id) AS transaction_count,
+                SUM(sm.change_in_stock > 0) AS inbound_count,
+                SUM(sm.change_in_stock < 0) AS outbound_count
+            FROM region r
+            LEFT JOIN stockmovement sm ON sm.region_id = r.region_id
+            GROUP BY r.region_id, r.name
+            ORDER BY transaction_count DESC
+        `;
+        return await query(sql);
+    };
+    
     
 }
 

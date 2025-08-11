@@ -77,6 +77,21 @@ class CurrentStockModel{
         return result[0].capacity_in_use;
     };
 
+
+    //analytics
+    getTotalStockValue = async () => {
+        const sql = `
+            SELECT
+                SUM(cs.quantity * p.price) AS total_value
+            FROM current_stock cs
+            JOIN product p ON p.product_id = cs.product_id
+        `;
+        const result = await query(sql);
+        return result[0]?.total_value || 0;
+    };
+    
+    
+
 };
 
 

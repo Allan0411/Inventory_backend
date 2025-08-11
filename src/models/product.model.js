@@ -65,6 +65,36 @@ class ProductModel {
         const result = await query(sql, [id]);
         return result ? result.affectedRows : 0;
     }
+
+    // Update only the is_clearance flag for a product
+    /**
+     * Set is_clearance to true for all products whose life_time (in days) has expired
+     * (i.e., current_date - creation_date >= life_time).
+     * If product_id is specified, only update that product.
+     * Otherwise, update all eligible products.
+     */
+    updateIsClearance = async (product_id = null) => {
+        let sql, values;
+        if (product_id) {
+            sql = `
+                UPDATE ${this.tableName}
+                SET is_clearance = 1
+                WHERE product_id = ?
+                  AND DATEDIFF(CURDATE(), creation_date) >= life_time
+            `;
+            values = [product_id];
+        } else {
+            sql = `
+                UPDATE ${this.tableName}
+                SET is_clearance = 1
+                WHERE DATEDIFF(CURDATE(), creation_date) >= life_time
+            `;
+            values = [];
+        }
+        const result = await query(sql, values);
+        return result ? result.affectedRows : 0;
+    }
 }
+
 
 module.exports = new ProductModel();

@@ -11,7 +11,9 @@ router.get('/:id', auth(), awaitHandlerFactory(StockMovementController.getStockM
 router.get('/product/:product_id', auth(), awaitHandlerFactory(StockMovementController.getStockMovementsByProduct));
 router.get('/user/:user_id', auth(), awaitHandlerFactory(StockMovementController.getStockMovementsByUser));
 router.get('/region/:region_id', auth(), awaitHandlerFactory(StockMovementController.getStockMovementByRegion));
-router.patch('/:id/status', auth('Admin', 'Supplier'), updateStatusSchema, awaitHandlerFactory(StockMovementController.updateStatus));
+router.patch('/:id/status', updateStatusSchema, awaitHandlerFactory(StockMovementController.updateStatus));
 router.patch('/:id/tracking', auth('Admin', 'Supplier'), updateTrackingUrlSchema, awaitHandlerFactory(StockMovementController.updateTrackingUrl));
+router.get('/report/status', awaitHandlerFactory(StockMovementController.getStockMovementStatusReport));
+router.get('/report/average-delivery-time', awaitHandlerFactory(StockMovementController.getAverageDeliveryTime));
 
 module.exports = router;

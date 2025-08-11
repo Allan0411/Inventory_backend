@@ -59,6 +59,36 @@ class CategoryModel {
         return result ? result.affectedRows : 0;
     };
     
+
+    //these are for analytics
+    getTopCategoriesByProductCount = async () => {
+        const sql = `
+            SELECT c.category_id, c.name, COUNT(p.product_id) AS product_count
+            FROM category c
+            LEFT JOIN product p ON p.category_id = c.category_id
+            GROUP BY c.category_id, c.name
+            ORDER BY product_count DESC
+        `;
+        return await query(sql);
+    };
+
+    getCategoryMovementSummary = async () => {
+        const sql = `
+            SELECT
+                c.category_id,
+                c.name AS category_name,
+                SUM(CASE WHEN sm.change_in_stock > 0 THEN sm.change_in_stock ELSE 0 END) AS total_in,
+                SUM(CASE WHEN sm.change_in_stock < 0 THEN ABS(sm.change_in_stock) ELSE 0 END) AS total_out
+            FROM category c
+            LEFT JOIN product p ON p.category_id = c.category_id
+            LEFT JOIN stockmovement sm ON sm.product_id = p.product_id
+            GROUP BY c.category_id, c.name
+            ORDER BY total_in DESC
+        `;
+        return await query(sql);
+    };
+    
+    
 }
 
 module.exports = new CategoryModel();

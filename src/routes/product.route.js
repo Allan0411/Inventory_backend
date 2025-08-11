@@ -24,4 +24,7 @@ router.put('/:product_id', auth('Admin'), updateProductSchema, awaitHandlerFacto
 // Delete Product
 router.delete('/:product_id', auth('Admin'), awaitHandlerFactory(productController.deleteProduct));
 
+// Set Clearance - can be used for specific product or all eligible products
+router.patch('/clearance', awaitHandlerFactory(productController.setClearance));
+
 module.exports = router;

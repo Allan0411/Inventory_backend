@@ -9,7 +9,7 @@ const currentStockRouter=require('./routes/currentStock.route');
 const categoryRouter=require('./routes/category.route');
 const productRouter=require('./routes/product.route');
 const regionRouter = require('./routes/region.route');
-
+const analyticsRouter = require('./routes/analytics.route');
 // Init express
 const app = express();
 // Init environment
@@ -38,6 +38,7 @@ app.use('/api/v1/products',productRouter);
 // Mount region routes
 app.use('/api/v1/regions', regionRouter);
 
+app.use('/api/v1/analytics',analyticsRouter);
 
 // 404 error
 app.all('*', (req, res, next) => {

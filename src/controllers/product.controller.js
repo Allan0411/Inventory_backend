@@ -64,11 +64,29 @@ class ProductController {
         res.json({ message: 'Product has been deleted' });
     };
 
+    setClearance = async (req, res, next) => {
+        try {
+            // Optional: allow product_id as a query param or in body
+            const product_id = req.body.product_id || req.query.product_id || null;
+            const affectedRows = await ProductModel.updateIsClearance(product_id);
+            res.json({
+                message: product_id
+                    ? `Clearance flag set for product ${product_id} (if eligible)`
+                    : `Clearance flag set for all eligible products`,
+                affectedRows
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     checkValidation = (req) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             throw new HttpException(400, 'Validation failed', errors);
         }
     }
+
+
 }
 module.exports = new ProductController();
